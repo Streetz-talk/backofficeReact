@@ -1,13 +1,14 @@
 import React from "react";
-import Sidebar from "./sidebar/Sidebar"; // Import the Sidebar component
-import "./AuthenticatedLayout.css"; // Optional: styles for layout
+import { Outlet } from "react-router-dom";
+import Sidebar from "./sidebar/Sidebar";
+import "./AuthenticatedLayout.css";
 
-const AuthenticatedLayout = ({ children }) => {
+const AuthenticatedLayout = () => {
   return (
     <div className="authenticated-layout">
-      <Sidebar /> {/* Sidebar is always present on authenticated pages */}
+      <Sidebar />
       <div className="main-content">
-        {children} {/* This will render the page content */}
+        <Outlet /> {/* Renders the matched child route */}
       </div>
     </div>
   );

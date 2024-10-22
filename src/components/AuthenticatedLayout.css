@@ -12,7 +12,6 @@
 
 /* Main content next to the sidebar */
 .main-content {
-  margin-left: 250px; /* Adjust this based on your sidebar width */
   padding: 20px;
   width: 100%;
 }
