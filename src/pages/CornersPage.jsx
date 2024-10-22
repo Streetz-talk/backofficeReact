@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios"; // Import axios for making API calls
+import { useAuth } from "../context/AuthContext";
+
 import {
   Search,
   ChevronDown,
@@ -17,56 +20,79 @@ const Card = ({ children, className = "" }) => (
 );
 
 const CornersPage = () => {
+  const [corners, setCorners] = useState([]); // State for corners data
+  const [loading, setLoading] = useState(true); // State for loading status
+  const [error, setError] = useState(null); // State for error handling
+  const [totalCorners, setTotalCorners] = useState(0);
+  const { token } = useAuth();
+
+  const [currentPage, setCurrentPage] = useState(1); // State for current page
+  const [totalPages, setTotalPages] = useState(1); // State for total pages
+  const usersPerPage = 10; // Define how many users per page
+
   const stats = [
-    { title: "Total Users", value: "2,420", change: "+40%", trending: "up" },
-    { title: "Highrise", value: "316", change: "-20%", trending: "down" },
-    { title: "Street Corners", value: "1,210", change: "+10%", trending: "up" },
+    // { title: "Total Users", value: "2,420", change: "+40%", trending: "up" },
+    // { title: "Highrise", value: "316", change: "-20%", trending: "down" },
+    { title: "Street Corners", value: totalCorners, change: "+10%", trending: "up" },
   ];
 
   const apps = [
-    {
-      icon: "🟣",
-      name: "Catalog",
-      domain: "streetcorner.io",
-      description: "Content curation app",
-      subtext: "Brings all your news into one place",
-      users: 6,
-    },
-    {
-      icon: "🔵",
-      name: "Cronodes",
-      domain: "getcronodes.com",
-      description: "Design software",
-      subtext: "Super lightweight design app",
-      users: 5,
-    },
-    {
-      icon: "🟠",
-      name: "Command+R",
-      domain: "cmdr.sh",
-      description: "Data prediction",
-      subtext: "AI and machine learning data",
-      users: 6,
-    },
-    {
-      icon: "⚪",
-      name: "Hourglass",
-      domain: "hourglass.app",
-      description: "Productivity app",
-      subtext: "Time management and productivity",
-      users: 4,
-    },
+    // Your existing apps array
   ];
 
   const trending = [
-    { name: "Lagos", description: "Bring all your news into one place" },
-    { name: "Ibadan", description: "The latest happening around you" },
-    { name: "Calabar", description: "What's new" },
-    { name: "Kano", description: "The latest happening around you" },
+    // Your existing trending array
   ];
 
+  // Fetch corners data from the API
+  useEffect(() => {
+    const fetchCorners = async () => {
+      try {
+        const response = await axios.get(
+          `https://streetz.xyz/api/collections/corners/records?perPage=${usersPerPage}&page=${currentPage}`,
+          {
+            method: "GET", // You can specify the method if needed
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // Include the token here
+            },
+          }
+        );
+        setCorners(response.data.items); // Set the corners data from the API response
+        setTotalPages(response.data.totalPages);
+        setTotalCorners(response.data.totalItems); // Set total pages from the API response
+      } catch (err) {
+        setError(err.message); // Set error message if the API call fails
+      } finally {
+        setLoading(false); // Set loading to false after fetching
+      }
+    };
+
+    fetchCorners(); // Call the fetch function
+  }, [currentPage, token]); // Dependency array includes currentPage and token
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>; // Show loading text while data is being fetched
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>; // Show error message if there was an issue
+  }
+
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-white rounded-lg shadow">
+    <div className="p-6 max-w-7xl mx-auto bg-white rounded-lg shadow" style={{overflow: 'auto', height: '100vh', marginBottom: '50px'}}>
       <div className="mb-8">
         <h1 className="text-2xl font-semibold mb-1">Welcome back, Olivia</h1>
         <p className="text-gray-500">
@@ -138,30 +164,14 @@ const CornersPage = () => {
             />
           </div>
 
-          {/* Apps List */}
+          {/* Corners List */}
           <div className="space-y-4">
-            {apps.map((app, index) => (
-              <Card key={index} className="p-3 hover:bg-gray-50">
-                <div className="flex items-center">
-                  <div className="mr-3 text-2xl">{app.icon}</div>
-                  <div className="flex-grow">
-                    <div className="flex items-center">
-                      <h3 className="font-medium">{app.name}</h3>
-                      <span className="text-gray-400 text-sm ml-2">
-                        ({app.domain})
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600">{app.description}</p>
-                    <p className="text-xs text-gray-400">{app.subtext}</p>
-                  </div>
-                  <div className="flex -space-x-2">
-                    {[...Array(app.users)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white"
-                      />
-                    ))}
-                  </div>
+            {corners.map((corner) => (
+              <Card key={corner.id} className="p-3 hover:bg-gray-50">
+                <div className="flex flex-col">
+                  <h3 className="font-medium">{corner.name}</h3>
+                  <p className="text-sm text-gray-600">{corner.description}</p>
+                  <p className="text-xs text-gray-400">{corner.address}</p>
                 </div>
               </Card>
             ))}
@@ -169,12 +179,22 @@ const CornersPage = () => {
 
           {/* Pagination */}
           <div className="flex justify-between items-center mt-6">
-            <button className="flex items-center text-gray-500">
+            <button
+              onClick={handlePreviousPage}
+              className="flex items-center text-gray-500 disabled:opacity-50"
+              disabled={currentPage === 1} // Disable button if on the first page
+            >
               <ArrowLeft size={16} className="mr-1" />
               Previous
             </button>
-            <span className="text-sm text-gray-500">Page 1 of 10</span>
-            <button className="flex items-center text-gray-500">
+            <span className="text-sm text-gray-500">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              className="flex items-center text-gray-500 disabled:opacity-50"
+              disabled={currentPage === totalPages} // Disable button if on the last page
+            >
               Next
               <ArrowRight size={16} className="ml-1" />
             </button>

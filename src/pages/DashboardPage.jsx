@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Search, MoreVertical, ChevronDown, Users } from "lucide-react";
+import { Search, MoreVertical, ChevronDown, Users, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const DashboardPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
+  const [totalPost, setTotalPost] = useState(0);
+  const [totalCorners, setTotalCorners] = useState(0);
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
   const usersPerPage = 7;
@@ -17,15 +19,39 @@ const DashboardPage = () => {
         const response = await fetch(
           `https://streetz.xyz/api/collections/users/records?perPage=${usersPerPage}&page=${currentPage}`,
           {
-            method: "GET", // You can specify the method if needed
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // Include the token here
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const response2 = await fetch(
+          `https://streetz.xyz/api/collections/posts/records`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const response3 = await fetch(
+          `https://streetz.xyz/api/collections/corners/records`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
           }
         );
         const data = await response.json();
+        const data2 = await response2.json();
+        const data3 = await response3.json();
         setUsers(data.items);
+        setTotalCorners(data3.totalItems);
+        setTotalPost(data2.totalItems)
         setTotalItems(data.totalItems);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -46,13 +72,13 @@ const DashboardPage = () => {
     },
     {
       title: "Total Post Created",
-      value: Math.floor(totalItems * 0.8).toString(),
+      value: totalPost,
       change: "+20%",
       trending: "up",
     },
     {
       title: "Total Corners Created",
-      value: Math.floor(totalItems * 0.1).toString(),
+      value: totalCorners,
       change: "+10%",
       trending: "up",
     },
@@ -60,7 +86,6 @@ const DashboardPage = () => {
 
   const totalPages = Math.ceil(totalItems / usersPerPage);
 
-  // Card component
   const Card = ({ children, className = "" }) => (
     <div
       className={`bg-white rounded-lg border border-gray-100 shadow-sm ${className}`}
@@ -69,14 +94,22 @@ const DashboardPage = () => {
     </div>
   );
 
+  const handleImageError = (e) => {
+    e.target.style.display = 'none';
+    const fallbackIcon = e.target.parentElement.querySelector('.fallback-icon');
+    if (fallbackIcon) {
+      fallbackIcon.style.display = 'block';
+    }
+  };
+
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto" style={{overflow: 'auto', height: '100vh', marginBottom: '50px'}}>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-semibold mb-1">Welcome back, Admin</h1>
           <p className="text-gray-500">
-            Track, manage and forecast your users.
+            Track, and manage your users.
           </p>
         </div>
         <button className="px-4 py-2 bg-pink-500 text-white rounded-lg flex items-center gap-2">
@@ -169,13 +202,19 @@ const DashboardPage = () => {
             >
               <div className="col-span-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
-                    {user.avatar && (
-                      <img
-                        src={`/api/placeholder/40/40`}
-                        alt={user.name}
-                        className="w-full h-full object-cover"
-                      />
+                  <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden flex items-center justify-center">
+                    {user.avatar ? (
+                      <>
+                        <img
+                          src={`https://streetz.xyz/api/files/users/${user.id}/${user.avatar}`}
+                          alt={user.name}
+                          className="w-full h-full object-cover"
+                          
+                        />
+                        <User className="fallback-icon text-gray-400 hidden" size={24} />
+                      </>
+                    ) : (
+                      <User className="text-gray-400" size={24} />
                     )}
                   </div>
                   <div>

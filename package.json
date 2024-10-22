@@ -1,5 +1,6 @@
 {
   "name": "backofficereact",
+  "homepage": "https://streetztalk.xyz/admin/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

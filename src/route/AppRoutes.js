@@ -11,6 +11,7 @@ import UsersPage from "../pages/UsersPage";
 import CornersPage from "../pages/CornersPage";
 import AuthenticatedLayout from "../components/AuthenticatedLayout";
 import { useAuth } from "../context/AuthContext";
+import PostPage from "../pages/PostPage";
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
@@ -27,6 +28,7 @@ const AppRoutes = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/users" element={<UsersPage />} />
             <Route path="/corners" element={<CornersPage />} />
+            <Route path="/posts" element={<PostPage />} />
             {/* Redirect any other authenticated routes to Dashboard */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>

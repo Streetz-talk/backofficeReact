@@ -22,7 +22,8 @@ const LoginPage = () => {
         "https://streetz.xyz/api/admins/auth-with-password",
         { identity, password }
       );
-      login(response.data.token);
+      const { email } = response.data.admin;
+      login(response.data.token, email);
       navigate("/dashboard");
     } catch (error) {
       setError("Invalid login credentials");

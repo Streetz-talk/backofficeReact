@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   LayoutDashboard,
@@ -8,13 +8,28 @@ import {
   Settings,
   Search,
   LogOut,
+  FileText,
+  User,
 } from "lucide-react";
 
 const Sidebar = () => {
-  const { logout } = useAuth();
+  const { logout, email } = useAuth();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
+  };
+
+  const isActivePath = (path) => {
+    return location.pathname === path;
+  };
+
+  const getLinkClassName = (path) => {
+    return `flex items-center gap-3 px-3 py-2 rounded-lg ${
+      isActivePath(path)
+        ? "text-pink-500 bg-pink-500/10"
+        : "hover:bg-[#1E293B]"
+    } transition-colors`;
   };
 
   return (
@@ -50,7 +65,7 @@ const Sidebar = () => {
           <li>
             <Link
               to="/dashboard"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-pink-500 bg-pink-500/10 hover:bg-pink-500/20 transition-colors"
+              className={getLinkClassName("/dashboard")}
             >
               <LayoutDashboard size={20} />
               <span>Dashboard</span>
@@ -59,7 +74,7 @@ const Sidebar = () => {
           <li>
             <Link
               to="/users"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1E293B] transition-colors"
+              className={getLinkClassName("/users")}
             >
               <Users size={20} />
               <span>Users</span>
@@ -68,10 +83,19 @@ const Sidebar = () => {
           <li>
             <Link
               to="/corners"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1E293B] transition-colors"
+              className={getLinkClassName("/corners")}
             >
               <RadioTower size={20} />
               <span>Corners</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/posts"
+              className={getLinkClassName("/posts")}
+            >
+              <FileText size={20} />
+              <span>Posts</span>
             </Link>
           </li>
         </ul>
@@ -81,7 +105,7 @@ const Sidebar = () => {
       <div className="p-4 border-t border-gray-700">
         <Link
           to="/settings"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1E293B] transition-colors mb-2"
+          className={getLinkClassName("/settings")}
         >
           <Settings size={20} />
           <span>Settings</span>
@@ -96,10 +120,12 @@ const Sidebar = () => {
         </button>
 
         <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-8 h-8 rounded-full bg-gray-400"></div>
+          <div className="w-8 h-8 rounded-full bg-gray-400">
+          <User className="text-gray-400" size={24} />
+          </div>
           <div className="flex-1">
-            <div className="text-sm font-medium text-gray-200">Olivia Rhye</div>
-            <div className="text-xs text-gray-400">olivia@streettalk.com</div>
+            <div className="text-sm font-medium text-gray-200">Admin</div>
+            <div className="text-xs text-gray-400">{email}</div>
           </div>
           <button className="text-gray-400 hover:text-white">
             <svg
