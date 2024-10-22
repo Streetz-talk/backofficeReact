@@ -1,0 +1,18 @@
+/* Container for the layout */
+.authenticated-layout {
+  display: flex;
+}
+
+/* Sidebar remains fixed */
+.authenticated-layout .sidebar {
+  position: fixed;
+  width: 250px;
+  height: 100vh;
+}
+
+/* Main content next to the sidebar */
+.main-content {
+  margin-left: 250px; /* Adjust this based on your sidebar width */
+  padding: 20px;
+  width: 100%;
+}
